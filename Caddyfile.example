@@ -1,0 +1,14 @@
+# Exemple de reverse proxy. Caddy obtient et renouvelle le certificat seul.
+#
+#   caddy run --config Caddyfile
+
+turi.exemple.fr {
+    reverse_proxy 127.0.0.1:8080
+
+    # Le service worker et le manifeste doivent pouvoir être revalidés, sinon
+    # une nouvelle version reste invisible derrière le cache du navigateur.
+    @shell path /sw.js /index.html /manifest.webmanifest
+    header @shell Cache-Control "no-cache"
+
+    encode zstd gzip
+}

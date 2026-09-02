@@ -1,0 +1,33 @@
+{
+  "name": "turi-kout",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=server & npm run dev --workspace=web",
+    "build": "npm run build --workspace=web && npm run build --workspace=server",
+    "start": "npm run start --workspace=server",
+    "seed": "npm run seed --workspace=server",
+    "test": "npm run test --workspace=server",
+    "check": "npm run check --workspace=server && npm run check --workspace=web",
+    "verify": "npm run check && npm run test",
+    "e2e": "./e2e/run.sh"
+  },
+  "allowScripts": {
+    "better-sqlite3@12.11.1": true,
+    "esbuild@0.25.12": true
+  },
+  "engines": {
+    "node": ">=22.6"
+  },
+  "description": "Suivi de musculation et de nutrition, auto-hébergé, hors ligne.",
+  "license": "MIT",
+  "author": "Turi Industries",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GreemSC/turi-kout.git"
+  }
+}

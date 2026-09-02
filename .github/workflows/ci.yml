@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # better-sqlite3 recupere son binaire precompile ; sans lui, node-gyp.
+      - run: npm ci
+
+      - name: Types
+        run: npm run check
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # Le budget de la specification : 150 ko compresses pour le bundle initial.
+      - name: Budget du bundle
+        run: |
+          BYTES=$(gzip -c web/dist/assets/*.js | wc -c | tr -d ' ')
+          echo "JavaScript : $BYTES octets compresses"
+          test "$BYTES" -lt 153600 || { echo "Budget de 150 ko depasse"; exit 1; }

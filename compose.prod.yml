@@ -1,0 +1,27 @@
+# Déploiement : tire l'image publiée par CI, ne construit rien.
+#
+#   curl -O https://raw.githubusercontent.com/GreemSC/turi-kout/main/compose.prod.yml
+#   docker compose -f compose.prod.yml up -d
+#
+# Mise à jour :
+#   docker compose -f compose.prod.yml pull && docker compose -f compose.prod.yml up -d
+
+services:
+  turi-kout:
+    image: ghcr.io/greemsc/turi-kout:latest
+    restart: unless-stopped
+    environment:
+      # Laissez vide au premier démarrage : un jeton est généré et affiché dans
+      # les journaux (docker compose logs turi-kout).
+      AUTH_TOKEN: ${AUTH_TOKEN:-}
+      PORT: 8080
+      DB_PATH: /data/turi-kout.sqlite
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      # Caddy termine le TLS devant : on n'expose que sur la boucle locale.
+      - "${BIND_ADDR:-127.0.0.1}:${HOST_PORT:-8080}:8080"
+    volumes:
+      - turi-kout-data:/data
+
+volumes:
+  turi-kout-data:
