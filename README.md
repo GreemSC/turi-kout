@@ -22,16 +22,29 @@ le reste est subordonné au premier.
 
 ## Déploiement
 
-### Sur un serveur, en trois commandes
+### Depuis les sources — aucune authentification
 
 ```bash
+git clone https://github.com/GreemSC/turi-kout.git && cd turi-kout
+docker compose up -d --build
+docker compose logs turi-kout | grep -A2 "Jeton genere"
+```
+
+C'est le chemin le plus court si le serveur peut construire l'image lui-même.
+
+### Depuis l'image publiée — plus rapide, mais authentifiée
+
+CI publie une image multi-architecture (amd64 et arm64) sur
+`ghcr.io/greemsc/turi-kout`. Le dépôt étant privé, **le paquet l'est aussi** : il
+faut s'identifier auprès du registre avec un jeton portant `read:packages`.
+
+```bash
+echo "$GHCR_TOKEN" | docker login ghcr.io -u GreemSC --password-stdin
+
 curl -O https://raw.githubusercontent.com/GreemSC/turi-kout/main/compose.prod.yml
 docker compose -f compose.prod.yml up -d
 docker compose -f compose.prod.yml logs turi-kout | grep -A2 "Jeton genere"
 ```
-
-L'image multi-architecture (amd64 et arm64) est publiée par CI sur
-`ghcr.io/greemsc/turi-kout`. Rien à construire.
 
 Mise à jour :
 
@@ -39,12 +52,9 @@ Mise à jour :
 docker compose -f compose.prod.yml pull && docker compose -f compose.prod.yml up -d
 ```
 
-### Depuis les sources
-
-```bash
-git clone https://github.com/GreemSC/turi-kout.git && cd turi-kout
-docker compose up -d --build
-```
+Pour se passer de cette authentification, rendez le **paquet** public sans
+toucher au dépôt — Settings → Packages → `turi-kout` → Change visibility. Le
+`docker login` devient alors inutile sur le serveur.
 
 ### Derrière un reverse proxy
 
